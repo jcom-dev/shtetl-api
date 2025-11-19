@@ -4,15 +4,21 @@ This repository contains all three backend microservices for the Shtetl platform
 
 ## Services
 
-### [Zmanim Service](./zmanim/) - Port 8001 (gRPC)
+### [Zmanim Service](./zmanim/) - REST: 8101, gRPC: 8102
 
 Zmanim/calendar calculation engine for rabbinic authorities. Handles astronomical calculations, Hebrew calendar logic, and calendar stream publishing.
 
-### [Shul Service](./shul/) - Port 8002 (REST)
+- **REST API (8101):** Browser access, OpenAPI documentation, third-party integrations
+- **gRPC API (8102):** High-performance microservice-to-microservice communication
+
+### [Shul Service](./shul/) - REST: 8103, gRPC: 8104
 
 Shul administration and minyan scheduling. Manages synagogue configuration, minyan scheduling DSL, coverage validation, and PDF generation.
 
-### [Kehilla Service](./kehilla/) - Port 8003 (REST)
+- **REST API (8103):** Browser access, web admin UI, third-party integrations
+- **gRPC API (8104):** High-performance microservice-to-microservice communication
+
+### [Kehilla Service](./kehilla/) - REST: 8105
 
 Public-facing community API. Provides schedule queries, subscription management, and notification delivery for congregation members.
 
@@ -41,20 +47,22 @@ cd shul go mod download && cd ..
 cd kehilla && go mod download && cd ..
 
 # Run services (in separate terminals)
-cd zmanim && go run cmd/zmanim/main.go    # Port 8001
-cd shul && go run cmd/shul/main.go        # Port 8002
-cd kehilla && go run cmd/kehilla/main.go  # Port 8003
+cd zmanim && go run cmd/zmanim/main.go    # REST: 8101, gRPC: 8102
+cd shul && go run cmd/shul/main.go        # REST: 8103, gRPC: 8104
+cd kehilla && go run cmd/kehilla/main.go  # REST: 8105
 ```
 
 ### Health Checks
 
 ```bash
-# Zmanim (gRPC - health endpoint added in Story 1.11)
-# Shul
-curl http://localhost:8002/health
+# Zmanim (REST on 8101)
+curl http://localhost:8101/health
 
-# Keh illa
-curl http://localhost:8003/health
+# Shul (REST on 8103)
+curl http://localhost:8103/health
+
+# Kehilla (REST on 8105)
+curl http://localhost:8105/health
 ```
 
 ## Development
@@ -72,22 +80,22 @@ Each service follows clean architecture with:
 
 ```
 ┌─────────────────────┐
-│  Zmanim Service     │ Port 8001 (gRPC)
-│  - Calculations     │
-│  - Calendar Streams │
+│  Zmanim Service     │ REST: 8101, gRPC: 8102
+│  - Calculations     │ REST: Browser/OpenAPI access
+│  - Calendar Streams │ gRPC: Microservice access
 └──────────┬──────────┘
-           │ gRPC
+           │ gRPC (service-to-service)
            ↓
 ┌─────────────────────┐
-│  Shul Service       │ Port 8002 (REST + gRPC)
-│  - Shul Admin       │
-│  - Scheduling       │
+│  Shul Service       │ REST: 8103, gRPC: 8104
+│  - Shul Admin       │ REST: Browser/OpenAPI access
+│  - Scheduling       │ gRPC: Microservice access
 │  - PDF Generation   │
 └──────────┬──────────┘
            │ Reads schedules
            ↓
 ┌─────────────────────┐
-│  Kehilla Service    │ Port 8003 (REST)
+│  Kehilla Service    │ REST: 8105
 │  - Public API       │
 │  - Subscriptions    │
 │  - Notifications    │

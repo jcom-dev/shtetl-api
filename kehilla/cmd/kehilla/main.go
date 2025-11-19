@@ -4,23 +4,44 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 )
 
 func main() {
+	// Get port from environment or use default
+	port := getEnv("KEHILLA_PORT", "8105")
+
+	mux := http.NewServeMux()
+
 	// Health check endpoint
-	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fmt.Fprintf(w, `{"status":"ok","service":"kehilla"}`)
+		fmt.Fprintf(w, `{"status":"ok","service":"kehilla","version":"0.1.0"}`)
 	})
 
-	// TODO: Add REST API endpoints (Story 1.3 - API Contract Design)
-	// - GET /api/v1/schedules/{shulId}/today
-	// - GET /api/v1/schedules/{shulId}/week
-	// - POST /api/v1/subscriptions
+	// Placeholder REST endpoints (to be implemented in Story 1.4)
+	mux.HandleFunc("/api/v1/schedules/", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotImplemented)
+		fmt.Fprintf(w, `{"error":"not implemented yet"}`)
+	})
 
-	fmt.Println("Kehilla Service (REST) listening on port 8003...")
-	if err := http.ListenAndServe(":8003", nil); err != nil {
-		log.Fatalf("Failed to start server: %v", err)
+	mux.HandleFunc("/api/v1/subscriptions", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotImplemented)
+		fmt.Fprintf(w, `{"error":"not implemented yet"}`)
+	})
+
+	fmt.Printf("Kehilla REST API listening on port %s...\n", port)
+	if err := http.ListenAndServe(":"+port, mux); err != nil {
+		log.Fatalf("Server failed: %v", err)
 	}
+}
+
+func getEnv(key, defaultValue string) string {
+	if value := os.Getenv(key); value != "" {
+		return value
+	}
+	return defaultValue
 }
