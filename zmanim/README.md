@@ -4,12 +4,12 @@
 
 ## Overview
 
-The Zmanim Service provides astronomical and Hebrew calendar calculations for the Shtetl platform. It exposes a gRPC API for publishing and consuming calendar streams with multiple halachic calculation methodologies.
+The Zmanim Service provides astronomical and Hebrew calendar calculations for the Shtetl platform. It exposes a REST API for publishing and consuming calendar streams with multiple halachic calculation methodologies.
 
 ## Architecture
 
-- **Technology:** Go 1.25.4 + gRPC
-- **Port:** 8001 (gRPC)
+- **Technology:** Go 1.25.4 + REST (Lambda-compatible)
+- **Port:** 8101 (REST)
 - **Database:** PostgreSQL (calculation formulas, streams, versions)
 
 ## Key Capabilities
@@ -24,13 +24,14 @@ The Zmanim Service provides astronomical and Hebrew calendar calculations for th
 
 ```
 zmanim/
-├── cmd/zmanim/          # Service entry point
-│   └── main.go          # gRPC server
+├── cmd/
+│   ├── lambda/          # Lambda deployment entry point
+│   └── server/          # HTTP server (local dev)
 ├── internal/            # Private application logic
-│   ├── handler/         # gRPC handlers
+│   ├── handler/         # REST handlers
 │   ├── service/         # Business logic
 │   └── repository/      # Data access layer
-├── api/                 # gRPC proto definitions (Story 1.3)
+├── api/                 # OpenAPI 3.1 spec (Story 1.6)
 ├── pkg/                 # Public reusable packages
 ├── go.mod               # Go module definition
 └── README.md            # This file
@@ -53,7 +54,7 @@ go mod download
 go run cmd/zmanim/main.go
 ```
 
-The service will start on port 8001 (gRPC).
+The service will start on port 8101 (REST).
 
 ### Health Check
 
@@ -63,7 +64,7 @@ Once Story 1.11 (Monitoring & Observability) is complete, the health endpoint wi
 
 This service follows clean architecture principles:
 
-1. **Handlers** (`internal/handler/`) - gRPC request/response handling
+1. **Handlers** (`internal/handler/`) - REST request/response handling
 2. **Services** (`internal/service/`) - Business logic and domain operations
 3. **Repository** (`internal/repository/`) - Data persistence layer
 

@@ -4,12 +4,12 @@
 
 ## Overview
 
-The Shul Service handles all synagogue administration, minyan scheduling, and PDF generation for the Shtetl platform. It provides RESTful APIs for web and mobile clients, and internal gRPC APIs for service-to-service communication.
+The Shul Service handles all synagogue administration, minyan scheduling, and PDF generation for the Shtetl platform. It provides REST APIs for all clients and service-to-service communication.
 
 ## Architecture
 
-- **Technology:** Go 1.25.4 + REST + gRPC
-- **Port:** 8002 (REST)
+- **Technology:** Go 1.25.4 + REST (Lambda-compatible)
+- **Port:** 8103 (REST)
 - **Database:** PostgreSQL (shuls, minyanim, rules, primitives)
 
 ## Key Capabilities
@@ -26,13 +26,14 @@ The Shul Service handles all synagogue administration, minyan scheduling, and PD
 
 ```
 shul/
-├── cmd/shul/            # Service entry point
-│   └── main.go          # HTTP/gRPC server
+├── cmd/
+│   ├── lambda/          # Lambda deployment entry point
+│   └── server/          # HTTP server (local dev)
 ├── internal/            # Private application logic
-│   ├── handler/         # REST + gRPC handlers
+│   ├── handler/         # REST handlers
 │   ├── service/         # Business logic
 │   └── repository/      # Data access layer
-├── api/                 # OpenAPI specs (Story 1.3)
+├── api/                 # OpenAPI 3.1 spec (Story 1.6)
 ├── pkg/                 # Public reusable packages
 ├── go.mod               # Go module definition
 └── README.md            # This file

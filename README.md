@@ -4,19 +4,17 @@ This repository contains all three backend microservices for the Shtetl platform
 
 ## Services
 
-### [Zmanim Service](./zmanim/) - REST: 8101, gRPC: 8102
+### [Zmanim Service](./zmanim/) - REST: 8101
 
 Zmanim/calendar calculation engine for rabbinic authorities. Handles astronomical calculations, Hebrew calendar logic, and calendar stream publishing.
 
-- **REST API (8101):** Browser access, OpenAPI documentation, third-party integrations
-- **gRPC API (8102):** High-performance microservice-to-microservice communication
+- **REST API (8101):** All access (browser, OpenAPI documentation, service-to-service, third-party integrations)
 
-### [Shul Service](./shul/) - REST: 8103, gRPC: 8104
+### [Shul Service](./shul/) - REST: 8103
 
 Shul administration and minyan scheduling. Manages synagogue configuration, minyan scheduling DSL, coverage validation, and PDF generation.
 
-- **REST API (8103):** Browser access, web admin UI, third-party integrations
-- **gRPC API (8104):** High-performance microservice-to-microservice communication
+- **REST API (8103):** All access (browser, web admin UI, service-to-service, third-party integrations)
 
 ### [Kehilla Service](./kehilla/) - REST: 8105
 
@@ -47,8 +45,8 @@ cd shul go mod download && cd ..
 cd kehilla && go mod download && cd ..
 
 # Run services (in separate terminals)
-cd zmanim && go run cmd/zmanim/main.go    # REST: 8101, gRPC: 8102
-cd shul && go run cmd/shul/main.go        # REST: 8103, gRPC: 8104
+cd zmanim && go run cmd/zmanim/main.go    # REST: 8101
+cd shul && go run cmd/shul/main.go        # REST: 8103
 cd kehilla && go run cmd/kehilla/main.go  # REST: 8105
 ```
 
@@ -69,34 +67,35 @@ curl http://localhost:8105/health
 
 Each service follows clean architecture with:
 
-- `cmd/` - Service entry points
-- `internal/handler/` - Request handling (gRPC/REST)
+- `cmd/lambda/` - Lambda deployment entry point
+- `cmd/server/` - HTTP server entry point (local dev)
+- `internal/handler/` - REST request handling
 - `internal/service/` - Business logic
 - `internal/repository/` - Data access
-- `api/` - API contracts (proto/OpenAPI)
+- `api/` - API contracts (OpenAPI 3.1)
 - `pkg/` - Shared packages
 
 ## Service Communication
 
 ```
 ┌─────────────────────┐
-│  Zmanim Service     │ REST: 8101, gRPC: 8102
-│  - Calculations     │ REST: Browser/OpenAPI access
-│  - Calendar Streams │ gRPC: Microservice access
+│  Zmanim Service     │ REST: 8101
+│  - Calculations     │ All access via REST API
+│  - Calendar Streams │
 └──────────┬──────────┘
-           │ gRPC (service-to-service)
+           │ REST API (service-to-service)
            ↓
 ┌─────────────────────┐
-│  Shul Service       │ REST: 8103, gRPC: 8104
-│  - Shul Admin       │ REST: Browser/OpenAPI access
-│  - Scheduling       │ gRPC: Microservice access
+│  Shul Service       │ REST: 8103
+│  - Shul Admin       │ All access via REST API
+│  - Scheduling       │
 │  - PDF Generation   │
 └──────────┬──────────┘
-           │ Reads schedules
+           │ Reads schedules (database)
            ↓
 ┌─────────────────────┐
 │  Kehilla Service    │ REST: 8105
-│  - Public API       │
+│  - Public API       │ All access via REST API
 │  - Subscriptions    │
 │  - Notifications    │
 └─────────────────────┘
@@ -104,7 +103,7 @@ Each service follows clean architecture with:
 
 ## Deployment
 
-Services are deployed as AWS Lambda functions via AWS CDK (see `shtetl-infra` repository).
+Services are deployed as AWS Lambda functions via CDKTF (Terraform + TypeScript, see `shtetl-infra` repository).
 
 ## Related Documentation
 
